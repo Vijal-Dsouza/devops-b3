@@ -28,5 +28,5 @@ jobs:
                 echo "Image pulled successfully"
             - name: updating lambda
               run: |
-                aws lambda update-function-code --function-name devops-b3 \
+                aws lambda update-function-code --function-name devops-b3-container \
                 --image-uri 259242132771.dkr.ecr.us-east-1.amazonaws.com/devops-b3-registery:latest
