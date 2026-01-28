@@ -1,0 +1,32 @@
+name: deployment workflow
+
+on:
+    workflow_run:
+        workflows: ["devops b3 github action"]
+        types:
+            - completed
+
+jobs:
+    retirve-image:
+        if: github.event.workflow_run.conclusion == 'success'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: configure aws creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: us-east-1 
+
+            - name: login to ecr
+              uses: aws-actions/amazon-ecr-login@v2
+
+            - name: retrieve image
+              run: |
+                docker pull 259242132771.dkr.ecr.us-east-1.amazonaws.com/devops-b3-registery:latest
+                echo "Image pulled successfully"
+            - name: updating lambda
+              run: |
+                aws lambda update-function-code --function-name devops-b3 \
+                --image-uri 259242132771.dkr.ecr.us-east-1.amazonaws.com/devops-b3-registery:latest
